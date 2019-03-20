@@ -103,6 +103,7 @@ open class PickerView: UIView {
     fileprivate var selectionImageH: NSLayoutConstraint!
     fileprivate var selectionIndicatorB: NSLayoutConstraint!
     fileprivate var pickerCellBackgroundColor: UIColor?
+    fileprivate var shouldGiveFeedback: Bool = false
     
     var numberOfRowsByDataSource: Int {
         get {
@@ -599,6 +600,22 @@ extension PickerView: UITableViewDataSource {
         return pickerViewCell
     }
     
+    public func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        
+        if #available(iOS 10.0, *) {
+            if(shouldGiveFeedback)
+            {
+                let generator = UISelectionFeedbackGenerator()
+                generator.selectionChanged()
+            }
+            
+            
+        } else {
+            // Fallback on earlier versions
+        }
+        
+    }
+    
 }
 
 extension PickerView: UITableViewDelegate {
@@ -661,7 +678,7 @@ extension PickerView: UIScrollViewDelegate {
     public func scrollViewDidScroll(_ scrollView: UIScrollView) {
         let partialRow = Float(scrollView.contentOffset.y / rowHeight)
         let roundedRow = Int(lroundf(partialRow))
-        
+        shouldGiveFeedback = true
         // Avoid to have two highlighted rows at the same time
         if let visibleRows = tableView.indexPathsForVisibleRows {
             for indexPath in visibleRows {
